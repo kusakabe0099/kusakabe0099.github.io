@@ -3,6 +3,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const checks = document.querySelectorAll(".confirm");
   const button = document.getElementById("sendButton");
 
+  Office.onReady(() => {
+    console.log(
+        Office.context.requirements.isSetSupported(
+            "Mailbox",
+            "1.12"
+      )
+    );
+  });
+  
   checks.forEach(check => {
     check.addEventListener("change", () => {
 
