@@ -3,13 +3,65 @@
 <head>
 <meta charset="utf-8">
 <title>送信前チェック</title>
+
+<style>
+body{
+    font-family:Segoe UI,sans-serif;
+    padding:20px;
+}
+
+h2{
+    color:#0078d4;
+}
+
+.check{
+    margin:12px 0;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#0078d4;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:disabled{
+    background:#ccc;
+}
+</style>
 </head>
 
 <body>
 
 <h2>送信前チェック</h2>
 
-<p>アドイン表示成功</p>
+<div class="check">
+<label><input type="checkbox" class="confirm"> 宛先(To)確認</label>
+</div>
+
+<div class="check">
+<label><input type="checkbox" class="confirm"> CC確認</label>
+</div>
+
+<div class="check">
+<label><input type="checkbox" class="confirm"> BCC確認</label>
+</div>
+
+<div class="check">
+<label><input type="checkbox" class="confirm"> 件名確認</label>
+</div>
+
+<div class="check">
+<label><input type="checkbox" class="confirm"> 添付ファイル確認</label>
+</div>
+
+<button id="sendButton" disabled>
+送信可能
+</button>
+
+<scripte.jsscript>
 
 </body>
 </html>
