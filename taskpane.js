@@ -1,12 +1,22 @@
-const checks = document.querySelectorAll(".confirm");
-const button = document.getElementById("sendButton");
+document.addEventListener("DOMContentLoaded", () => {
 
-checks.forEach(c => {
-    c.addEventListener("change", () => {
+  const checks = document.querySelectorAll(".confirm");
+  const button = document.getElementById("sendButton");
 
-        const allChecked =
-            [...checks].every(x => x.checked);
+  checks.forEach(check => {
+    check.addEventListener("change", () => {
 
-        button.disabled = !allChecked;
+      const allChecked =
+        [...checks].every(c => c.checked);
+
+      button.disabled = !allChecked;
+
+      if (allChecked) {
+        button.textContent = "送信OK";
+      } else {
+        button.textContent = "送信可能";
+      }
     });
+  });
+
 });
