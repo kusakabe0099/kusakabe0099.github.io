@@ -1,4 +1,6 @@
 function onMessageSendHandler(event) {
+    console.log("Send event fired");
+
     event.completed({
         allowEvent: true
     });
