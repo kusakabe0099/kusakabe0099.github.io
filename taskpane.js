@@ -2,15 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const checks = document.querySelectorAll(".confirm");
   const button = document.getElementById("sendButton");
-
-  Office.onReady(() => {
-    console.log(
-        Office.context.requirements.isSetSupported(
-            "Mailbox",
-            "1.12"
-      )
-    );
-  });
   
   checks.forEach(check => {
     check.addEventListener("change", () => {
@@ -27,5 +18,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+});
+
+Office.onReady(() => {
+
+    const supported =
+        Office.context.requirements.isSetSupported(
+            "Mailbox",
+            "1.12"
+        );
+
+    document.body.innerHTML =
+        "Mailbox 1.12 対応: " + supported;
 
 });
