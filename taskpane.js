@@ -1,26 +1,10 @@
 Office.onReady(async () => {
 
     const item = Office.context.mailbox.item;
-
-
-
-    console.log(item.itemType);
-
-    item.subject.getAsync(r => {
-        console.log("subject", r);
-    });
-
-    Office.context.mailbox.item.getAttachmentsAsync(
-        result => {
-    
-            console.log(result);
-    
-        }
-    );
     
     loadSubject(item);
     loadRecipients(item);
-    //loadAttachments(item);
+    loadAttachments(item);
 
 });
 
@@ -54,10 +38,21 @@ function loadRecipients(item) {
 
 function loadAttachments(item) {
 
-    renderAttachmentList(
-        "attachList",
-        item.attachments
-    );
+    item.getAttachmentsAsync(result => {
+
+        if (
+            result.status ===
+            Office.AsyncResultStatus.Succeeded
+        ) {
+
+            renderAttachmentList(
+                "attachList",
+                result.value
+            );
+
+        }
+
+    });
 
 }
 
@@ -92,18 +87,30 @@ function renderAddressList(id, recipients) {
 function renderAttachmentList(id, files) {
 
     const container =
-      document.getElementById(id);
+        document.getElementById(id);
 
-    files.forEach(f => {
+    container.innerHTML = "";
+
+    if (!files || files.length === 0) {
+
+        container.innerHTML =
+            "<div>添付ファイルなし</div>";
+
+        return;
+    }
+
+    files.forEach(file => {
 
         const row =
-        document.createElement("div");
+            document.createElement("div");
 
         row.innerHTML = `
-            <input type="checkbox"
-                   class="confirm">
-
-            <span>${f.name}</span>
+            <label>
+                <input
+                    type="checkbox"
+                    class="confirm">
+                ${file.name}
+            </label>
         `;
 
         container.appendChild(row);
@@ -111,7 +118,6 @@ function renderAttachmentList(id, files) {
     });
 
     bindCheckEvents();
-
 }
 
 function bindCheckEvents() {
