@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
-
+/*
 Office.onReady(() => {
 
     const supported =
@@ -35,3 +35,4 @@ Office.onReady(() => {
         "Mailbox 1.12 対応: " + supported;
 
 });
+*/
