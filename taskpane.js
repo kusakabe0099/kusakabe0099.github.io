@@ -243,7 +243,7 @@ function renderRecipientList(id, recipients) {
         const isExternal =
             !r.emailAddress
                 .toLowerCase()
-                .endsWith("@company.co.jp");
+                .endsWith("@usoft.co.jp");
 
         const row =
             document.createElement("div");
