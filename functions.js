@@ -1,5 +1,6 @@
 function onMessageSendHandler(event) {
-    console.log("Send event fired");
+
+    console.log("OnMessageSend fired");
 
     event.completed({
         allowEvent: true
@@ -7,8 +8,10 @@ function onMessageSendHandler(event) {
 }
 
 Office.onReady(() => {
+
     Office.actions.associate(
         "onMessageSendHandler",
         onMessageSendHandler
     );
+
 });
