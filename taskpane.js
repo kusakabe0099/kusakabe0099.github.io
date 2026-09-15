@@ -232,29 +232,32 @@ function renderRecipientList(id, recipients) {
 
     container.innerHTML = "";
 
-    if (
-        !recipients ||
-        recipients.length === 0
-    ) {
+    if (!recipients || recipients.length === 0) {
 
-        container.innerHTML =
-            "<div>なし</div>";
-
+        container.innerHTML = "<div>なし</div>";
         return;
     }
 
     recipients.forEach(r => {
 
+        const isExternal =
+            !r.emailAddress
+                .toLowerCase()
+                .endsWith("@company.co.jp");
+
         const row =
             document.createElement("div");
 
-        row.className = "recipient-row";
+        row.className =
+            isExternal
+                ? "recipient-row external"
+                : "recipient-row";
 
         row.innerHTML = `
             <label>
                 <input
-                  type="checkbox"
-                  class="confirm">
+                    type="checkbox"
+                    class="confirm">
 
                 ${r.displayName}
                 (${r.emailAddress})
