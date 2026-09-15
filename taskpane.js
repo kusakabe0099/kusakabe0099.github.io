@@ -1,112 +1,136 @@
-Office.onReady(() => {
+Office.onReady(async () => {
 
     const item = Office.context.mailbox.item;
 
-    Promise.all([
-        checkTo(item),
-        checkCc(item),
-        checkBcc(item),
-        checkSubject(item),
-        checkAttachment(item)
-    ]).then(updateButton);
+    loadSubject(item);
+    loadRecipients(item);
+    loadAttachments(item);
 
 });
 
-function checkTo(item) {
+function loadSubject(item) {
 
-    return new Promise(resolve => {
+    item.subject.getAsync(res => {
 
-        item.to.getAsync(result => {
+        if (res.status === Office.AsyncResultStatus.Succeeded) {
 
-            const ok =
-                result.status === Office.AsyncResultStatus.Succeeded &&
-                result.value.length > 0;
+            document.getElementById("subjectText")
+                .innerText = res.value;
 
-            document.getElementById("toCheck").checked = ok;
-
-            resolve();
-        });
+        }
 
     });
+
 }
 
-function checkCc(item) {
+function loadRecipients(item) {
 
-    return new Promise(resolve => {
+    item.to.getAsync(result => {
 
-        item.cc.getAsync(result => {
-
-            const ok =
-                result.status === Office.AsyncResultStatus.Succeeded &&
-                result.value.length > 0;
-
-            document.getElementById("ccCheck").checked = ok;
-
-            resolve();
-        });
+        renderAddressList(
+            "toList",
+            result.value
+        );
 
     });
+
 }
 
-function checkBcc(item) {
+function loadAttachments(item) {
 
-    return new Promise(resolve => {
-
-        item.bcc.getAsync(result => {
-
-            const ok =
-                result.status === Office.AsyncResultStatus.Succeeded &&
-                result.value.length > 0;
-
-            document.getElementById("bccCheck").checked = ok;
-
-            resolve();
-        });
-
-    });
-}
-
-function checkSubject(item) {
-
-    return new Promise(resolve => {
-
-        item.subject.getAsync(result => {
-
-            const ok =
-                result.status === Office.AsyncResultStatus.Succeeded &&
-                result.value.trim() !== "";
-
-            document.getElementById("subjectCheck").checked = ok;
-
-            resolve();
-        });
-
-    });
-}
-
-function checkAttachment(item) {
-
-    const ok = item.attachments.length > 0;
-
-    document.getElementById("attachCheck").checked = ok;
-
-    return Promise.resolve();
-}
-
-function updateButton() {
-
-    const checks = document.querySelectorAll(
-        "input[type='checkbox']"
+    renderAttachmentList(
+        "attachList",
+        item.attachments
     );
 
-    const allOk =
-        Array.from(checks).every(c => c.checked);
+}
 
-    const button =
-        document.getElementById("sendButton");
+function renderAddressList(id, recipients) {
 
-    button.disabled = !allOk;
+    const container =
+        document.getElementById(id);
 
-    button.textContent =
-        allOk ? "送信OK" : "確認不足";
+    recipients.forEach(r => {
+
+        const row =
+        document.createElement("div");
+
+        row.className = "row";
+
+        row.innerHTML = `
+            <input type="checkbox"
+                   class="confirm">
+
+            <span>${r.displayName}</span>
+
+            <span>${r.emailAddress}</span>
+        `;
+
+        container.appendChild(row);
+
+    });
+
+    bindCheckEvents();
+}
+
+function renderAttachmentList(id, files) {
+
+    const container =
+      document.getElementById(id);
+
+    files.forEach(f => {
+
+        const row =
+        document.createElement("div");
+
+        row.innerHTML = `
+            <input type="checkbox"
+                   class="confirm">
+
+            <span>${f.name}</span>
+        `;
+
+        container.appendChild(row);
+
+    });
+
+    bindCheckEvents();
+
+}
+
+function bindCheckEvents() {
+
+    document
+        .querySelectorAll(".confirm")
+        .forEach(cb => {
+
+            cb.addEventListener(
+                "change",
+                updateProgress
+            );
+
+        });
+
+}
+
+function updateProgress() {
+
+    const checks =
+      document.querySelectorAll(".confirm");
+
+    const completed =
+      [...checks].filter(x => x.checked)
+                 .length;
+
+    const total =
+      checks.length;
+
+    document.getElementById("progress")
+        .innerText =
+        `確認済み: ${completed}/${total}`;
+
+    document.getElementById("sendButton")
+        .disabled =
+        completed !== total;
+
 }
