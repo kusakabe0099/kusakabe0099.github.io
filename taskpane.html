@@ -12,30 +12,34 @@
 
 <h2>送信前チェック</h2>
 
-<div>
-  <label><input type="checkbox" class="confirm"> To確認</label>
-</div>
+<label>
+  <input type="checkbox" id="toCheck" disabled>
+  宛先(To)
+</label><br>
 
-<div>
-  <label><input type="checkbox" class="confirm"> CC確認</label>
-</div>
+<label>
+  <input type="checkbox" id="ccCheck" disabled>
+  CC
+</label><br>
 
-<div>
-  <label><input type="checkbox" class="confirm"> BCC確認</label>
-</div>
+<label>
+  <input type="checkbox" id="bccCheck" disabled>
+  BCC
+</label><br>
 
-<div>
-  <label><input type="checkbox" class="confirm"> 件名確認</label>
-</div>
+<label>
+  <input type="checkbox" id="subjectCheck" disabled>
+  件名
+</label><br>
 
-<div>
-  <label><input type="checkbox" class="confirm"> 添付確認</label>
-</div>
+<label>
+  <input type="checkbox" id="attachCheck" disabled>
+  添付ファイル
+</label><br>
 
 <button id="sendButton" disabled>
-送信可能
+  送信OK
 </button>
-
 
 </body>
 </html>
