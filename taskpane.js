@@ -3,7 +3,9 @@ Office.onReady(async () => {
     const item = Office.context.mailbox.item;
     
     loadSubject(item);
-    loadRecipients(item);
+    loadTo(item);
+    loadCc(item);
+    loadBcc(item);
     loadAttachments(item);
 
 });
@@ -155,4 +157,113 @@ function updateProgress() {
         .disabled =
         completed !== total;
 
+}
+
+function loadTo(item) {
+
+    item.to.getAsync(result => {
+
+        if (
+            result.status ===
+            Office.AsyncResultStatus.Succeeded
+        ) {
+
+            console.log("TO", result.value);
+
+            renderRecipientList(
+                "toList",
+                result.value
+            );
+
+        }
+
+    });
+
+}
+
+function loadCc(item) {
+
+    item.cc.getAsync(result => {
+
+        if (
+            result.status ===
+            Office.AsyncResultStatus.Succeeded
+        ) {
+
+            console.log("CC", result.value);
+
+            renderRecipientList(
+                "ccList",
+                result.value
+            );
+
+        }
+
+    });
+
+}
+
+function loadBcc(item) {
+
+    item.bcc.getAsync(result => {
+
+        if (
+            result.status ===
+            Office.AsyncResultStatus.Succeeded
+        ) {
+
+            console.log("BCC", result.value);
+
+            renderRecipientList(
+                "bccList",
+                result.value
+            );
+
+        }
+
+    });
+
+}
+
+function renderRecipientList(id, recipients) {
+
+    const container =
+        document.getElementById(id);
+
+    container.innerHTML = "";
+
+    if (
+        !recipients ||
+        recipients.length === 0
+    ) {
+
+        container.innerHTML =
+            "<div>なし</div>";
+
+        return;
+    }
+
+    recipients.forEach(r => {
+
+        const row =
+            document.createElement("div");
+
+        row.className = "recipient-row";
+
+        row.innerHTML = `
+            <label>
+                <input
+                  type="checkbox"
+                  class="confirm">
+
+                ${r.displayName}
+                (${r.emailAddress})
+            </label>
+        `;
+
+        container.appendChild(row);
+
+    });
+
+    bindCheckEvents();
 }
