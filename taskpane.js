@@ -2,16 +2,14 @@ Office.onReady(async () => {
 
     const item = Office.context.mailbox.item;
 
-    console.log(
-        Office.context.mailbox.item.itemType
-    );
-    
-    
-    console.log(
-        Object.keys(
-            Office.context.mailbox.item
-        )
-    );    
+
+
+    console.log(item.itemType);
+
+    item.subject.getAsync(r => {
+        console.log("subject", r);
+    });
+
     
     loadSubject(item);
     loadRecipients(item);
