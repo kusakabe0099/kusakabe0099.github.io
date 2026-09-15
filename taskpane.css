@@ -1,0 +1,11 @@
+.recipient-row {
+    padding: 6px;
+}
+
+.external {
+    color: #ff4d4f;
+    font-weight: bold;
+    background: #fff1f0;
+    border-left: 4px solid #ff4d4f;
+    padding-left: 8px;
+}
