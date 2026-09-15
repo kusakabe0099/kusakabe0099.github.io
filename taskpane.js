@@ -1,3 +1,5 @@
+console.log("START");
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const checks = document.querySelectorAll(".confirm");
