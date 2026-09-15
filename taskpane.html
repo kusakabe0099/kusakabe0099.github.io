@@ -10,36 +10,37 @@
 
 <body>
 
-<h2>送信前チェック</h2>
+<div class="container">
 
-<label>
-  <input type="checkbox" id="toCheck" disabled>
-  宛先(To)
-</label><br>
+  <h1>送信確認</h1>
 
-<label>
-  <input type="checkbox" id="ccCheck" disabled>
-  CC
-</label><br>
+  <div class="subject-card">
+    <span class="label">件名</span>
+    <span id="subjectText"></span>
+  </div>
 
-<label>
-  <input type="checkbox" id="bccCheck" disabled>
-  BCC
-</label><br>
+  <h3>TO</h3>
+  <div id="toList"></div>
 
-<label>
-  <input type="checkbox" id="subjectCheck" disabled>
-  件名
-</label><br>
+  <h3>CC</h3>
+  <div id="ccList"></div>
 
-<label>
-  <input type="checkbox" id="attachCheck" disabled>
-  添付ファイル
-</label><br>
+  <h3>添付ファイル</h3>
+  <div id="attachList"></div>
 
-<button id="sendButton" disabled>
-  送信OK
-</button>
+  <div class="footer">
+
+    <span id="progress">
+      確認済み: 0 / 0
+    </span>
+
+    <button id="sendButton" disabled>
+      送信
+    </button>
+
+  </div>
+
+</div>
 
 </body>
 </html>
