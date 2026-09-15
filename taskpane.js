@@ -10,10 +10,17 @@ Office.onReady(async () => {
         console.log("subject", r);
     });
 
+    Office.context.mailbox.item.getAttachmentsAsync(
+        result => {
+    
+            console.log(result);
+    
+        }
+    );
     
     loadSubject(item);
     loadRecipients(item);
-    loadAttachments(item);
+    //loadAttachments(item);
 
 });
 
