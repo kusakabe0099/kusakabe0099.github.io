@@ -2,6 +2,9 @@ Office.onReady(async () => {
 
     const item = Office.context.mailbox.item;
 
+    console.log(Office.context.mailbox.item);
+    console.log(Office.context.mailbox.item.attachments);
+    
     loadSubject(item);
     loadRecipients(item);
     loadAttachments(item);
