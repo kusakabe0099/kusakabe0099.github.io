@@ -304,9 +304,7 @@ function allowMailSend() {
     Office.context.roamingSettings.saveAsync(
         function () {
 
-            alert(
-              "確認完了しました。\n再度送信ボタンを押してください。"
-            );
+            document.getElementById("message").textContent = "確認完了しました。メール画面に戻って再度送信してください。";
 
         }
     );
