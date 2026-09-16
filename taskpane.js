@@ -271,9 +271,7 @@ function renderRecipientList(id, recipients) {
     bindCheckEvents();
 }
 
-document
-    .getElementById("confirmButton")
-    .addEventListener("click", allowMailSend);
+document.getElementById("confirmButton").addEventListener("click", allowMailSend);
 
 function allowMailSend() {
 
