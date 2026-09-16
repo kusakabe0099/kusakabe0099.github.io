@@ -5,6 +5,8 @@ function onMessageSendHandler(event) {
             "sendCheckPassed"
         );
 
+    console.log("confirmed=", confirmed);
+
     if (!confirmed) {
 
         event.completed({
@@ -16,16 +18,9 @@ function onMessageSendHandler(event) {
         return;
     }
 
-    Office.context.roamingSettings.remove(
-        "sendCheckPassed"
-    );
-
-    Office.context.roamingSettings.saveAsync();
-
     event.completed({
         allowEvent: true
     });
-
 }
 
 Office.onReady(() => {
