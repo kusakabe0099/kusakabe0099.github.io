@@ -1,24 +1,10 @@
 function onMessageSendHandler(event) {
 
-    Office.context.mailbox.item.subject.getAsync(res => {
+    console.log("SEND EVENT");
 
-        const subject =
-            res.value || "";
-
-        if (subject.trim() === "") {
-
-            event.completed({
-                allowEvent: false,
-                errorMessage: "件名が未入力です"
-            });
-
-            return;
-        }
-
-        event.completed({
-            allowEvent: true
-        });
-
+    event.completed({
+        allowEvent: false,
+        errorMessage: "送信イベントが発火しました"
     });
 
 }
@@ -31,3 +17,4 @@ Office.onReady(() => {
     );
 
 });
+``
