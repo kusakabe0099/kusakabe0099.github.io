@@ -296,26 +296,28 @@ document.addEventListener(
 
 function allowMailSend() {
 
-    Office.context.roamingSettings.set(
+    await OfficeRuntime.storage.setItem(
         "sendCheckPassed",
         true
     );
+
+    document.getElementById("message").textContent = "確認完了しました。再度送信してください。";
     
-    Office.context.roamingSettings.saveAsync(
-        function(result){
-    
-            console.log(
-                "saveAsync",
-                result.status
-            );
-    
-            console.log(
-                Office.context.roamingSettings.get(
-                    "sendCheckPassed"
-                )
-            );
-    
-        }
-    );
+//    Office.context.roamingSettings.saveAsync(
+//        function(result){
+//    
+//            console.log(
+//                "saveAsync",
+//                result.status
+//            );
+//    
+//            console.log(
+//                Office.context.roamingSettings.get(
+//                    "sendCheckPassed"
+//                )
+//            );
+//    
+//        }
+//    );
 
 }
