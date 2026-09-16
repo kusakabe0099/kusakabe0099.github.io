@@ -300,12 +300,21 @@ function allowMailSend() {
         "sendCheckPassed",
         true
     );
-
+    
     Office.context.roamingSettings.saveAsync(
-        function () {
-
-            document.getElementById("message").textContent = "確認完了しました。メール画面に戻って再度送信してください。";
-
+        function(result){
+    
+            console.log(
+                "saveAsync",
+                result.status
+            );
+    
+            console.log(
+                Office.context.roamingSettings.get(
+                    "sendCheckPassed"
+                )
+            );
+    
         }
     );
 
