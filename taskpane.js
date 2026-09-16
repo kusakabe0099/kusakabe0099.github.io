@@ -294,3 +294,21 @@ document.addEventListener(
   }
 );
 
+function allowMailSend() {
+
+    Office.context.roamingSettings.set(
+        "sendCheckPassed",
+        true
+    );
+
+    Office.context.roamingSettings.saveAsync(
+        function () {
+
+            alert(
+              "確認完了しました。\n再度送信ボタンを押してください。"
+            );
+
+        }
+    );
+
+}
