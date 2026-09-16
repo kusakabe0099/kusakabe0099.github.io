@@ -271,23 +271,26 @@ function renderRecipientList(id, recipients) {
     bindCheckEvents();
 }
 
-document.getElementById("sendButton").addEventListener("click", allowMailSend);
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
 
-function allowMailSend() {
+      const btn =
+        document.getElementById(
+          "sendButton"
+        );
 
-    Office.context.roamingSettings.set(
-        "sendCheckPassed",
-        true
-    );
+      console.log(btn);
 
-    Office.context.roamingSettings.saveAsync(
-        function () {
+      if (!btn) {
+          return;
+      }
 
-            alert(
-              "確認完了しました。\n再度送信ボタンを押してください。"
-            );
+      btn.addEventListener(
+        "click",
+        allowMailSend
+      );
 
-        }
-    );
-
+  }
+);
 }
