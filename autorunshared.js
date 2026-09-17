@@ -1,7 +1,7 @@
 function onMessageSendHandler(event) {
 
     const confirmed =
-        await OfficeRuntime.storage.getItem(
+        Office.context.roamingSettings.get(
             "sendCheckPassed"
         );
 
