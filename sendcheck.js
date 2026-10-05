@@ -1,5 +1,11 @@
 Office.onReady(() => {
-
+    
+    console.log("Office");
+    
+    console.log(Office.context);
+    
+    console.log(Office.context.mailbox);
+    
     document
         .getElementById("sendBtn")
         .addEventListener(
