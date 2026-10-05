@@ -4,6 +4,11 @@ function onMessageSendHandler(event) {
         Office.context.roamingSettings.get(
             "sendCheckPassed"
         );
+    
+    Office.context.ui.displayDialogAsync(
+        "https://kusakabe0099.github.io/sendcheck.html",
+        { height: 70, width: 60 }
+    );
 
     console.log("confirmed=", confirmed);
 
