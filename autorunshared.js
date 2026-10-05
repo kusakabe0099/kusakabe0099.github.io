@@ -12,7 +12,7 @@ function onMessageSendHandler(event) {
         event.completed({
             allowEvent: false,
             errorMessage:
-                "送信前チェックを完了してください"
+                "送信確認画面を開いて確認してください。"
         });
 
         return;
