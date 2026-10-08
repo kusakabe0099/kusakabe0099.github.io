@@ -67,7 +67,26 @@ function onMessageSendHandler(event) {
 
 }
 
+function openSendCheck(event) {
+
+    Office.context.ui.displayDialogAsync(
+        "https://kusakabe0099.github.io/sendcheck.html",
+        {
+            width: 70,
+            height: 80,
+            displayInIframe: true
+        }
+    );
+
+    event.completed();
+}
+
 Office.onReady(() => {
+
+    Office.actions.associate(
+        "openSendCheck",
+        openSendCheck
+    );
 
     Office.actions.associate(
         "onMessageSendHandler",
