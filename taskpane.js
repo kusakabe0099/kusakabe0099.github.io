@@ -1,63 +1,89 @@
 Office.onReady(() => {
 
     document
-        .getElementById("testSave")
+        .getElementById("openDialog")
         .addEventListener(
             "click",
-            testPropsSave
-        );
-
-    document
-        .getElementById("testRead")
-        .addEventListener(
-            "click",
-            testSessionRead
+            openDialog
         );
 
 });
 
-function testSessionRead() {
+function openDialog() {
 
-    Office.context.mailbox.item.sessionData.getAsync(
-        "test",
-        function(result) {
+    Office.context.ui.displayDialogAsync(
+        "https://kusakabe0099.github.io/sendcheck.html",
+        {
+            height: 80,
+            width: 70,
+            displayInIframe: true
+        },
+        function (result) {
 
-            console.log(
-                "READ",
-                result
+            if (
+                result.status !==
+                Office.AsyncResultStatus.Succeeded
+            ) {
+
+                console.error(
+                    result.error
+                );
+
+                return;
+            }
+
+            const dialog =
+                result.value;
+
+            dialog.addEventHandler(
+                Office.EventType.DialogMessageReceived,
+                function (arg) {
+
+                    const msg =
+                        JSON.parse(
+                            arg.message
+                        );
+
+                    if (
+                        msg.action ===
+                        "CONFIRMED"
+                    ) {
+
+                        Office.context
+                            .mailbox
+                            .item
+                            .loadCustomPropertiesAsync(
+                                function (r) {
+
+                                    const props =
+                                        r.value;
+
+                                    props.set(
+                                        "sendCheckPassed",
+                                        "true"
+                                    );
+
+                                    props.saveAsync(
+                                        function () {
+
+                                            dialog.close();
+
+                                            alert(
+                                                "確認完了。送信してください。"
+                                            );
+
+                                        }
+                                    );
+
+                                }
+                            );
+
+                    }
+
+                }
             );
 
         }
     );
-
-}
-
-function testPropsSave() {
-
-    Office.context.mailbox.item
-        .loadCustomPropertiesAsync(
-            function(result) {
-
-                const props =
-                    result.value;
-
-                props.set(
-                    "sendCheckPassed",
-                    "true"
-                );
-
-                props.saveAsync(
-                    function(r) {
-
-                        console.log(
-                            "SAVE",
-                            r
-                        );
-
-                    }
-                );
-
-            }
-        );
 
 }
