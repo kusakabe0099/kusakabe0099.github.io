@@ -1,58 +1,156 @@
-body {
-    margin: 0;
-    font-family: "Yu Gothic UI", "Meiryo UI", system-ui, sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color: #1f2a37;
+:root{
+    --primary:#2563eb;
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#f59e0b;
+    --bg:#f6f8fc;
+    --card:#ffffff;
+    --text:#1f2937;
+    --border:#dbe3ee;
 }
 
-.container {
-    padding: 16px 20px;
+body{
+    margin:0;
+    background:var(--bg);
+    font-family:"Segoe UI","Yu Gothic UI","Meiryo UI",sans-serif;
+    color:var(--text);
 }
 
-h1 { font-size: 18px; margin: 0 0 12px; }
-h3 { font-size: 14px; margin: 16px 0 6px; }
-
-.subject-card .label {
-    color: #5b6675;
-    margin-right: 8px;
+.container{
+    max-width:900px;
+    margin:0 auto;
+    padding:20px;
 }
 
-.recipient-row {
-    padding: 6px;
+h1{
+    margin:0 0 16px;
+    font-size:24px;
+    font-weight:700;
 }
 
-.external {
-    color: #ff4d4f;
-    font-weight: bold;
-    background: #fff1f0;
-    border-left: 4px solid #ff4d4f;
-    padding-left: 8px;
+.section{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:16px;
+    overflow:hidden;
 }
 
-/* 以下は追加分：モーダル／ランチャー用 */
-label { cursor: pointer; }
-input[type="checkbox"] { width: 18px; height: 18px; vertical-align: middle; }
-
-.footer { margin-top: 20px; }
-
-.buttons { display: flex; gap: 8px; margin-top: 8px; }
-.buttons button { flex: 1; }
-
-button {
-    padding: 10px 12px;
-    font: inherit;
-    font-weight: bold;
-    color: #fff;
-    background: #1f2a37;
-    border: 0;
-    border-radius: 4px;
-    cursor: pointer;
+.section-title{
+    background:#eef4ff;
+    padding:10px 14px;
+    font-size:14px;
+    font-weight:700;
 }
-button.secondary { color: #1f2a37; background: #e8ebef; }
-button:disabled { background: #aab2bd; cursor: not-allowed; }
-button:focus-visible, input:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
 
-#message { margin-top: 12px; min-height: 1.6em; }
-#message.ok { color: #0f766e; font-weight: bold; }
-#message.error { color: #ff4d4f; }
+.section-body{
+    padding:12px 14px;
+}
+
+.subject-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:16px;
+}
+
+.subject-card .label{
+    display:block;
+    font-size:12px;
+    color:#64748b;
+    margin-bottom:6px;
+}
+
+#subjectText{
+    font-size:18px;
+    font-weight:700;
+}
+
+.recipient-row{
+    padding:10px;
+    border-bottom:1px solid #edf2f7;
+}
+
+.recipient-row:last-child{
+    border-bottom:none;
+}
+
+.external{
+    background:#fff1f2;
+    border-left:4px solid var(--danger);
+    color:var(--danger);
+    font-weight:700;
+}
+
+label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+}
+
+input[type="checkbox"]{
+    width:18px;
+    height:18px;
+}
+
+.footer{
+    position:sticky;
+    bottom:0;
+    background:#fff;
+    border-top:1px solid var(--border);
+    padding:16px;
+    margin-top:20px;
+}
+
+#progress{
+    display:block;
+    margin-bottom:12px;
+    font-weight:700;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+}
+
+button{
+    flex:1;
+    border:none;
+    border-radius:10px;
+    padding:14px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+button.secondary{
+    background:#e5e7eb;
+    color:#374151;
+}
+
+#sendButton{
+    background:var(--primary);
+    color:#fff;
+}
+
+#sendButton:disabled{
+    background:#94a3b8;
+    cursor:not-allowed;
+}
+
+#message{
+    margin-top:12px;
+    font-size:13px;
+}
+
+.ok{
+    color:var(--success);
+    font-weight:700;
+}
+
+.error{
+    color:var(--danger);
+    font-weight:700;
+}
