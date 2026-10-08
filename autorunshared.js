@@ -1,21 +1,50 @@
 function onMessageSendHandler(event) {
 
-    console.log("SEND START");
+    Office.context.mailbox.item
+        .loadCustomPropertiesAsync(
+            function(result) {
 
-    console.log(
-        "sessionData",
-        Office.context.mailbox.item.sessionData
-    );
+                console.log(
+                    "LOAD",
+                    result
+                );
 
-    console.log(
-        "customProperties",
-        typeof Office.context.mailbox.item.loadCustomPropertiesAsync
-    );
+                if (
+                    result.status !==
+                    Office.AsyncResultStatus.Succeeded
+                ) {
 
-    event.completed({
-        allowEvent: false,
-        errorMessage: "ログ確認"
-    });
+                    event.completed({
+                        allowEvent: false,
+                        errorMessage:
+                            "LOAD FAILED"
+                    });
+
+                    return;
+                }
+
+                const props =
+                    result.value;
+
+                const flag =
+                    props.get(
+                        "sendCheckPassed"
+                    );
+
+                console.log(
+                    "FLAG",
+                    flag
+                );
+
+                event.completed({
+                    allowEvent: false,
+                    errorMessage:
+                        `FLAG=${flag}`
+                });
+
+            }
+        );
+
 }
 
 Office.onReady(() => {
