@@ -161,6 +161,20 @@ async function allowMailSend() {
         // このメール（作成セッション）にだけ有効な sessionData に、署名を保存する。
         await Okan.setConfirmed(item, latest.signature);
 
+        // Mailbox 1.15 以降なら、このままタスクペインから送信する（先に確認済みフラグを保存済み）
+        if (Office.context.requirements.isSetSupported("Mailbox", "1.15") &&
+            typeof item.sendAsync === "function") {
+            try {
+                await Okan.call(cb => item.sendAsync(cb));
+                return;
+            } catch (e) {
+                console.error("sendAsync", e);
+                setMessage("確認は保存しましたが、送信できませんでした。メールの「送信」を押してください。", "error");
+                return;
+            }
+        }
+
+        // 1.15 未対応の環境：確認だけ保存し、ユーザーに送信してもらう
         setMessage("確認を保存しました。メールの「送信」をもう一度押してください。", "ok");
 
     } catch (e) {
