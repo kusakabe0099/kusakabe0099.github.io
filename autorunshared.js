@@ -1,49 +1,48 @@
 function onMessageSendHandler(event) {
 
     Office.context.mailbox.item
-        .loadCustomPropertiesAsync(
-            function(result) {
+        .loadCustomPropertiesAsync(function (result) {
 
-                console.log(
-                    "LOAD",
-                    result
-                );
-
-                if (
-                    result.status !==
-                    Office.AsyncResultStatus.Succeeded
-                ) {
-
-                    event.completed({
-                        allowEvent: false,
-                        errorMessage:
-                            "LOAD FAILED"
-                    });
-
-                    return;
-                }
-
-                const props =
-                    result.value;
-
-                const flag =
-                    props.get(
-                        "sendCheckPassed"
-                    );
-
-                console.log(
-                    "FLAG",
-                    flag
-                );
+            if (
+                result.status !==
+                Office.AsyncResultStatus.Succeeded
+            ) {
 
                 event.completed({
                     allowEvent: false,
-                    errorMessage:
-                        `FLAG=${flag}`
+                    errorMessage: "送信前確認が必要です"
                 });
 
+                return;
             }
-        );
+
+            const props = result.value;
+
+            const checked =
+                props.get("sendCheckPassed");
+
+            if (checked === "true") {
+
+                props.remove("sendCheckPassed");
+
+                props.saveAsync(function () {
+
+                    event.completed({
+                        allowEvent: true
+                    });
+
+                });
+
+                return;
+            }
+
+            event.completed({
+                allowEvent: false,
+                errorMessage:
+                  "送信前チェックを実施してください"
+            });
+
+        });
 
 }
 
