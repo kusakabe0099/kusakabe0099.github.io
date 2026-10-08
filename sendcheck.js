@@ -8,10 +8,16 @@ Office.onReady(() => {
     
     document
         .getElementById("sendBtn")
-        .addEventListener(
-            "click",
-            sendMail
-        );
+        .addEventListener("click", () => {
+
+            Office.context.ui.messageParent(
+                JSON.stringify({
+                    action: "SEND"
+                })
+            );
+
+        });
+
 
 });
 
