@@ -4,7 +4,7 @@ Office.onReady(() => {
         .getElementById("testSave")
         .addEventListener(
             "click",
-            testSessionSave
+            testPropsSave
         );
 
     document
@@ -15,23 +15,6 @@ Office.onReady(() => {
         );
 
 });
-
-function testSessionSave() {
-
-    Office.context.mailbox.item.sessionData.setAsync(
-        "test",
-        "123",
-        function(result) {
-
-            console.log(
-                "SAVE",
-                result
-            );
-
-        }
-    );
-
-}
 
 function testSessionRead() {
 
