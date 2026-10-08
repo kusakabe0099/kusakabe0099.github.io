@@ -1,3 +1,23 @@
+body {
+    margin: 0;
+    font-family: "Yu Gothic UI", "Meiryo UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2a37;
+}
+
+.container {
+    padding: 16px 20px;
+}
+
+h1 { font-size: 18px; margin: 0 0 12px; }
+h3 { font-size: 14px; margin: 16px 0 6px; }
+
+.subject-card .label {
+    color: #5b6675;
+    margin-right: 8px;
+}
+
 .recipient-row {
     padding: 6px;
 }
@@ -10,8 +30,29 @@
     padding-left: 8px;
 }
 
-/* 追加分：メッセージ表示とボタンの無効状態 */
+/* 以下は追加分：モーダル／ランチャー用 */
+label { cursor: pointer; }
+input[type="checkbox"] { width: 18px; height: 18px; vertical-align: middle; }
+
+.footer { margin-top: 20px; }
+
+.buttons { display: flex; gap: 8px; margin-top: 8px; }
+.buttons button { flex: 1; }
+
+button {
+    padding: 10px 12px;
+    font: inherit;
+    font-weight: bold;
+    color: #fff;
+    background: #1f2a37;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button.secondary { color: #1f2a37; background: #e8ebef; }
+button:disabled { background: #aab2bd; cursor: not-allowed; }
+button:focus-visible, input:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+
 #message { margin-top: 12px; min-height: 1.6em; }
 #message.ok { color: #0f766e; font-weight: bold; }
 #message.error { color: #ff4d4f; }
-#sendButton:disabled { cursor: not-allowed; }

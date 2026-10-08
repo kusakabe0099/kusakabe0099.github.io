@@ -12,44 +12,20 @@
 
 <div class="container">
 
-  <h1>送信確認</h1>
+  <h1>送信前チェック</h1>
 
-  <div class="subject-card">
-    <span class="label">件名</span>
-    <span id="subjectText"></span>
+  <p>宛先と添付ファイルの確認画面を開きます。</p>
+
+  <div class="buttons">
+    <button id="openButton" type="button">確認画面を開く</button>
   </div>
 
-  <h3>TO</h3>
-  <div id="toList"></div>
-
-  <h3>CC</h3>
-  <div id="ccList"></div>
-
-  <h3>BCC</h3>
-  <div id="bccList"></div>
-
-  <h3>添付ファイル</h3>
-  <div id="attachList"></div>
-
-  <div class="footer">
-
-    <span id="progress">
-      確認済み: 0/0
-    </span>
-    <br/>
-    <button id="sendButton" disabled>
-      確認して送信
-    </button>
-
-    <div id="message" role="status"></div>
-
-  </div>
+  <div id="message" role="status"></div>
 
 </div>
 
-<!-- DOM の後に読み込む（getElementById が必ず見つかるようにする） -->
 <script type="text/javascript" src="shared.js"></script>
-<script type="text/javascript" src="sendCheck.js"></script>
+<script type="text/javascript" src="taskpane.js"></script>
 
 </body>
 </html>

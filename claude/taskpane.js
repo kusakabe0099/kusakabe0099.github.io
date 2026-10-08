@@ -1,109 +1,163 @@
-/* 確認画面：宛先・添付を表示し、全項目チェックで確認済みフラグを保存する */
-let currentState = null;
+/* 起動役のタスクペイン。
+   Smart Alerts の「確認画面を開く」から開かれ、確認ダイアログ（sendCheck.html）をモーダル表示する。
+   ダイアログで「確認して送信」が押されたら、確認済みフラグを保存して送信する。 */
 
-function el(tag, props, children) {
-  const node = document.createElement(tag);
-  Object.assign(node, props || {});
-  (children || []).forEach((c) => node.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
-  return node;
-}
-
-function checkRow(text) {
-  const input = el("input", { type: "checkbox" });
-  input.addEventListener("change", updateButton);
-  return el("label", { className: "check" }, [input, text]);
-}
-
-function formatSize(bytes) {
-  return bytes >= 1048576 ? (bytes / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(bytes / 1024)) + " KB";
-}
-
-function setStatus(text, cls) {
-  const s = document.getElementById("status");
-  s.textContent = text;
-  s.className = cls || "";
-}
-
-function updateButton() {
-  const boxes = document.querySelectorAll("input[type=checkbox]");
-  const allChecked = boxes.length > 0 && Array.from(boxes).every((b) => b.checked);
-  document.getElementById("confirm").disabled = !allChecked;
-}
-
-// textContent / createTextNode のみ使う（表示名に含まれる文字列をHTMLとして解釈しない）
-async function render() {
-  setStatus("");
-  try {
-    currentState = await Okan.collect(Office.context.mailbox.item);
-  } catch (e) {
-    setStatus("宛先と添付ファイルを読み込めませんでした。画面を開き直してください。", "error");
-    return;
-  }
-  const s = currentState;
-
-  document.getElementById("summary").textContent =
-    `宛先 ${s.recipients.length} 件（社外 ${s.externalCount} 件）、添付 ${s.files.length} 件`;
-
-  const rec = document.getElementById("recipients");
-  rec.replaceChildren(el("h2", { textContent: "宛先" }));
-  if (s.groups.length === 0) rec.appendChild(el("p", { className: "empty", textContent: "宛先がありません。" }));
-
-  s.groups.forEach((g) => {
-    const list = el("ul");
-    g.recipients.forEach((r) => {
-      list.appendChild(
-        el("li", {}, [
-          el("span", { className: "kind" + (r.kind === "Bcc" ? " bcc" : ""), textContent: r.kind }),
-          r.name && r.name !== r.address ? `${r.name} <${r.address}>` : r.address,
-        ])
-      );
-    });
-    const head = el("div", { className: "group-head" }, [
-      g.domain,
-      el("span", { className: "badge", textContent: g.external ? "社外" : "社内" }),
-    ]);
-    rec.appendChild(
-      el("div", { className: "group" + (g.external ? " external" : "") }, [
-        head,
-        list,
-        checkRow(`${g.domain} 宛ての ${g.recipients.length} 件で問題ない`),
-      ])
-    );
-  });
-
-  const att = document.getElementById("attachments");
-  att.replaceChildren();
-  if (s.files.length > 0) {
-    att.appendChild(el("h2", { textContent: "添付ファイル" }));
-    const list = el("ul");
-    s.files.forEach((f) => list.appendChild(el("li", { textContent: `${f.name}（${formatSize(f.size)}）` })));
-    att.appendChild(el("div", { className: "group" }, [list, checkRow("添付ファイルは正しい")]));
-  }
-
-  updateButton();
-}
-
-async function onConfirm() {
-  try {
-    // 画面表示後に宛先・添付が変わっていないか再確認してから保存する
-    const latest = await Okan.collect(Office.context.mailbox.item);
-    if (latest.signature !== currentState.signature) {
-      await render();
-      setStatus("宛先または添付ファイルが変更されました。もう一度確認してください。", "error");
-      return;
-    }
-    await Okan.setConfirmed(Office.context.mailbox.item, latest.signature);
-    setStatus("確認を保存しました。メールの「送信」をもう一度押してください。", "ok");
-  } catch (e) {
-    setStatus("確認を保存できませんでした。もう一度お試しください。", "error");
-  }
-}
+let dialog = null;
+let shownSignature = null; // ダイアログに表示した内容の署名
 
 Office.onReady(() => {
-  const item = Office.context.mailbox.item;
-  document.getElementById("confirm").addEventListener("click", onConfirm);
-  // 宛先・添付の編集に追従して再描画
-  item.addHandlerAsync(Office.EventType.RecipientsChanged, render);
-  item.addHandlerAsync(Office.EventType.AttachmentsChanged, render);
-  render();
+
+    document.getElementById("openButton").addEventListener("click", openDialog);
+
+    // 開いた時点で自動表示する（環境によっては許可の確認が出る。その場合はボタンから開く）
+    openDialog();
 });
+
+async function openDialog() {
+
+    if (dialog) return;
+
+    setMessage("");
+
+    const item = Office.context.mailbox.item;
+    let state, subject;
+
+    try {
+        [state, subject] = await Promise.all([
+            Okan.collect(item),
+            Okan.call(cb => item.subject.getAsync(cb))
+        ]);
+    } catch (e) {
+        setMessage("宛先と添付ファイルを読み込めませんでした。もう一度お試しください。", "error");
+        return;
+    }
+
+    shownSignature = state.signature;
+
+    const payload = {
+        subject,
+        recipients: state.recipients,
+        files: state.files
+    };
+
+    // 宛先などをサーバーへ送らないよう、ハッシュ（#）で渡す
+    const url = new URL("sendCheck.html", location.href);
+    url.hash = encodeURIComponent(JSON.stringify(payload));
+
+    Office.context.ui.displayDialogAsync(
+        url.toString(),
+        { width: 45, height: 85, displayInIframe: true }, // Outlook on the web では画面内のモーダルとして表示
+        result => {
+
+            if (result.status !== Office.AsyncResultStatus.Succeeded) {
+
+                const code = result.error.code;
+                setMessage(
+                    code === 12009
+                        ? "確認画面の表示が許可されませんでした。「確認画面を開く」を押して、許可してください。"
+                        : `確認画面を開けませんでした（エラー ${code}）。`,
+                    "error"
+                );
+                return;
+            }
+
+            dialog = result.value;
+            dialog.addEventHandler(Office.EventType.DialogMessageReceived, onDialogMessage);
+            dialog.addEventHandler(Office.EventType.DialogEventReceived, onDialogEvent);
+        }
+    );
+}
+
+function closeDialog() {
+
+    if (!dialog) return;
+
+    try {
+        dialog.close();
+    } catch (e) {
+        // すでに閉じている場合は何もしない
+    }
+    dialog = null;
+}
+
+// ダイアログが×ボタンなどで閉じられた、または読み込みに失敗した
+function onDialogEvent(arg) {
+
+    dialog = null;
+
+    setMessage(
+        arg.error === 12006
+            ? "確認画面が閉じられました。送信するには「確認画面を開く」を押してください。"
+            : `確認画面でエラーが発生しました（エラー ${arg.error}）。`,
+        "error"
+    );
+}
+
+async function onDialogMessage(arg) {
+
+    let msg;
+
+    try {
+        msg = JSON.parse(arg.message);
+    } catch (e) {
+        return;
+    }
+
+    closeDialog();
+
+    if (msg.type === "cancel") {
+        setMessage("キャンセルしました。送信するには「確認画面を開く」を押してください。");
+        return;
+    }
+
+    if (msg.type === "confirm") {
+        await saveAndSend();
+    }
+}
+
+async function saveAndSend() {
+
+    const item = Office.context.mailbox.item;
+
+    try {
+        // 確認画面を見せたあとに宛先・添付が変わっていないか再確認してから保存する
+        const latest = await Okan.collect(item);
+
+        if (latest.signature !== shownSignature) {
+            setMessage("確認後に宛先または添付ファイルが変更されました。もう一度確認してください。", "error");
+            return;
+        }
+
+        // roamingSettings はメールボックス全体で永続するため使わない。
+        // このメール（作成セッション）にだけ有効な sessionData に、署名を保存する。
+        await Okan.setConfirmed(item, latest.signature);
+
+    } catch (e) {
+        console.error("setConfirmed", e);
+        setMessage("確認を保存できませんでした。もう一度お試しください。", "error");
+        return;
+    }
+
+    // Mailbox 1.15 以降なら、このままここから送信する（確認済みフラグは保存済み）
+    if (Office.context.requirements.isSetSupported("Mailbox", "1.15") &&
+        typeof item.sendAsync === "function") {
+        try {
+            await Okan.call(cb => item.sendAsync(cb));
+            return;
+        } catch (e) {
+            console.error("sendAsync", e);
+            setMessage("確認は保存しましたが、送信できませんでした。メールの「送信」を押してください。", "error");
+            return;
+        }
+    }
+
+    // 1.15 未対応の環境：確認だけ保存し、ユーザーに送信してもらう
+    setMessage("確認を保存しました。メールの「送信」をもう一度押してください。", "ok");
+}
+
+function setMessage(text, cls) {
+
+    const m = document.getElementById("message");
+    m.textContent = text;
+    m.className = cls || "";
+}

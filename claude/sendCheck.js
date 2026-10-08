@@ -1,58 +1,42 @@
-/* 送信確認タスクペイン。
-   全項目にチェックして「確認完了」を押すと、確認済みフラグ（宛先・添付の署名）を保存する。
-   実際の送信可否は commands.js の OnMessageSend ハンドラが、このフラグを見て判定する。 */
-
-let currentSignature = null;
-let refreshSeq = 0;
+/* 送信確認ダイアログ（モーダル）。
+   表示データは親（taskpane.js）から URL のハッシュで受け取る。
+   ダイアログからは Outlook のメールを直接操作できないため、
+   「確認した」「キャンセル」を親に通知するだけにして、保存と送信は親が行う。 */
 
 Office.onReady(() => {
-    const item = Office.context.mailbox.item;
 
-    document.getElementById("sendButton").addEventListener("click", allowMailSend);
+    document.getElementById("sendButton").addEventListener("click", onConfirm);
+    document.getElementById("cancelButton").addEventListener("click", onCancel);
 
-    // 宛先・添付が編集されたら再描画（チェックはリセットされる）
-    item.addHandlerAsync(Office.EventType.RecipientsChanged, refresh);
-    item.addHandlerAsync(Office.EventType.AttachmentsChanged, refresh);
+    const data = readData();
 
-    refresh();
-});
-
-// 件名・宛先・添付を1回の取得結果から描画する（取得と描画がずれないようにする）
-async function refresh() {
-
-    const seq = ++refreshSeq;
-    const item = Office.context.mailbox.item;
-
-    let state, subject;
-
-    try {
-        [state, subject] = await Promise.all([
-            Okan.collect(item),
-            Okan.call(cb => item.subject.getAsync(cb))
-        ]);
-    } catch (e) {
-        setMessage("読み込めませんでした。画面を開き直してください。", "error");
+    if (!data) {
+        setMessage("確認する内容を受け取れませんでした。閉じて、もう一度開いてください。", "error");
         return;
     }
 
-    // 後から呼ばれた refresh があれば、古い結果は捨てる
-    if (seq !== refreshSeq) return;
-
-    currentSignature = state.signature;
-
-    document.getElementById("subjectText").textContent = subject;
+    document.getElementById("subjectText").textContent = data.subject || "（件名なし）";
 
     ["To", "Cc", "Bcc"].forEach(kind => {
         renderRecipientList(
             kind.toLowerCase() + "List",
-            state.recipients.filter(r => r.kind === kind)
+            data.recipients.filter(r => r.kind === kind)
         );
     });
 
-    renderAttachmentList("attachList", state.files);
+    renderAttachmentList("attachList", data.files);
 
-    setMessage("");
     updateProgress();
+});
+
+// 宛先などをサーバーへ送らないよう、クエリ（?）ではなくハッシュ（#）で受け取っている
+function readData() {
+
+    try {
+        return JSON.parse(decodeURIComponent(location.hash.slice(1)));
+    } catch (e) {
+        return null;
+    }
 }
 
 // innerHTML を使わず textContent で表示する（表示名に含まれる文字をHTMLとして解釈しない）
@@ -143,42 +127,17 @@ function setMessage(text, cls) {
     m.className = cls || "";
 }
 
-async function allowMailSend() {
+function onConfirm() {
 
-    const item = Office.context.mailbox.item;
+    // 二重送信を防ぐ
+    document.getElementById("sendButton").disabled = true;
+    document.getElementById("cancelButton").disabled = true;
+    setMessage("送信しています…");
 
-    try {
-        // 表示後に宛先・添付が変わっていないか再確認してから保存する
-        const latest = await Okan.collect(item);
+    Office.context.ui.messageParent(JSON.stringify({ type: "confirm" }));
+}
 
-        if (latest.signature !== currentSignature) {
-            await refresh();
-            setMessage("宛先または添付ファイルが変更されました。もう一度確認してください。", "error");
-            return;
-        }
+function onCancel() {
 
-        // roamingSettings はメールボックス全体で永続するため使わない。
-        // このメール（作成セッション）にだけ有効な sessionData に、署名を保存する。
-        await Okan.setConfirmed(item, latest.signature);
-
-        // Mailbox 1.15 以降なら、このままタスクペインから送信する（先に確認済みフラグを保存済み）
-        if (Office.context.requirements.isSetSupported("Mailbox", "1.15") &&
-            typeof item.sendAsync === "function") {
-            try {
-                await Okan.call(cb => item.sendAsync(cb));
-                return;
-            } catch (e) {
-                console.error("sendAsync", e);
-                setMessage("確認は保存しましたが、送信できませんでした。メールの「送信」を押してください。", "error");
-                return;
-            }
-        }
-
-        // 1.15 未対応の環境：確認だけ保存し、ユーザーに送信してもらう
-        setMessage("確認を保存しました。メールの「送信」をもう一度押してください。", "ok");
-
-    } catch (e) {
-        console.error("allowMailSend", e);
-        setMessage("確認を保存できませんでした。もう一度お試しください。", "error");
-    }
+    Office.context.ui.messageParent(JSON.stringify({ type: "cancel" }));
 }
