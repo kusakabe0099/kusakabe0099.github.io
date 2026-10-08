@@ -48,3 +48,33 @@ function testSessionRead() {
     );
 
 }
+
+function testPropsSave() {
+
+    Office.context.mailbox.item
+        .loadCustomPropertiesAsync(
+            function(result) {
+
+                const props =
+                    result.value;
+
+                props.set(
+                    "sendCheckPassed",
+                    "true"
+                );
+
+                props.saveAsync(
+                    function(r) {
+
+                        console.log(
+                            "SAVE",
+                            r
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
