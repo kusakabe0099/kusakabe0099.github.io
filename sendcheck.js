@@ -1,19 +1,22 @@
 Office.onReady(() => {
 
     document
-        .getElementById("sendBtn")
+        .getElementById(
+            "confirmBtn"
+        )
         .addEventListener(
             "click",
-            sendMail
+            confirmSend
         );
 
 });
 
-function sendMail() {
+function confirmSend() {
 
     Office.context.ui.messageParent(
         JSON.stringify({
-            action: "CONFIRMED"
+            action:
+                "CONFIRMED"
         })
     );
 
