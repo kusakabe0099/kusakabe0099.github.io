@@ -1,65 +1,51 @@
-let currentDialog = null;
+Office.onReady(() => {
 
-function openDialog() {
+    document
+        .getElementById("testSave")
+        .addEventListener(
+            "click",
+            testSessionSave
+        );
 
-    Office.context.ui.displayDialogAsync(
-        "https://kusakabe0099.github.io/sendcheck.html",
-        {
-            height: 80,
-            width: 70,
-            displayInIframe: true
-        },
-        function (result) {
+    document
+        .getElementById("testRead")
+        .addEventListener(
+            "click",
+            testSessionRead
+        );
 
-            if (
-                result.status !==
-                Office.AsyncResultStatus.Succeeded
-            ) {
+});
 
-                console.error(result.error);
-                return;
-            }
+function testSessionSave() {
 
-            currentDialog = result.value;
+    Office.context.mailbox.item.sessionData.setAsync(
+        "test",
+        "123",
+        function(result) {
 
-            currentDialog.addEventHandler(
-                Office.EventType.DialogMessageReceived,
-                function (arg) {
-
-                    const msg =
-                        JSON.parse(arg.message);
-
-                    console.log(
-                        "dialog message=",
-                        msg
-                    );
-
-                    if (
-                        msg.action ===
-                        "CONFIRMED"
-                    ) {
-
-                        Office.context.mailbox.item.sessionData.setAsync(
-                            "sendCheckPassed",
-                            "true",
-                            function(result) {
-
-                                console.log(
-                                    "sessionData set",
-                                    result.status
-                                );
-
-                                currentDialog.close();
-
-                            }
-                        );
-
-                    }
-
-                }
+            console.log(
+                "SAVE",
+                result
             );
 
         }
     );
 
 }
+
+function testSessionRead() {
+
+    Office.context.mailbox.item.sessionData.getAsync(
+        "test",
+        function(result) {
+
+            console.log(
+                "READ",
+                result
+            );
+
+        }
+    );
+
+}
+`
