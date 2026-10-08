@@ -1,48 +1,63 @@
 function onMessageSendHandler(event) {
 
-    Office.context.mailbox.item
-        .loadCustomPropertiesAsync(function (result) {
+    console.log("SEND START");
 
-            if (
-                result.status !==
-                Office.AsyncResultStatus.Succeeded
-            ) {
+    try {
 
-                event.completed({
-                    allowEvent: false,
-                    errorMessage: "送信前確認が必要です"
-                });
+        console.log(
+            "Office.context.ui",
+            Office.context.ui
+        );
 
-                return;
-            }
+        Office.context.ui.displayDialogAsync(
+            "https://kusakabe0099.github.io/sendcheck.html",
+            {
+                height: 80,
+                width: 70,
+                displayInIframe: true
+            },
+            function(result) {
 
-            const props = result.value;
+                console.log(
+                    "displayDialogAsync result",
+                    result
+                );
 
-            const checked =
-                props.get("sendCheckPassed");
-
-            if (checked === "true") {
-
-                props.remove("sendCheckPassed");
-
-                props.saveAsync(function () {
+                if (
+                    result.status ===
+                    Office.AsyncResultStatus.Succeeded
+                ) {
 
                     event.completed({
-                        allowEvent: true
+                        allowEvent: false,
+                        errorMessage:
+                            "Dialog OPEN SUCCESS"
                     });
 
-                });
+                } else {
 
-                return;
+                    event.completed({
+                        allowEvent: false,
+                        errorMessage:
+                            "Dialog OPEN FAILED"
+                    });
+
+                }
+
             }
+        );
 
-            event.completed({
-                allowEvent: false,
-                errorMessage:
-                  "送信前チェックを実施してください"
-            });
+    } catch(ex) {
 
+        console.error(ex);
+
+        event.completed({
+            allowEvent: false,
+            errorMessage:
+                ex.message
         });
+
+    }
 
 }
 
