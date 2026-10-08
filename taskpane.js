@@ -1,10 +1,4 @@
-Office.onReady(() => {
-
-    document
-        .getElementById("openDialog")
-        .addEventListener("click", openDialog);
-
-});
+let currentDialog = null;
 
 function openDialog() {
 
@@ -15,36 +9,56 @@ function openDialog() {
             width: 70,
             displayInIframe: true
         },
-        function (asyncResult) {
-    
-            const dialog = asyncResult.value;
-    
-            dialog.addEventHandler(
+        function (result) {
+
+            if (
+                result.status !==
+                Office.AsyncResultStatus.Succeeded
+            ) {
+
+                console.error(result.error);
+                return;
+            }
+
+            currentDialog = result.value;
+
+            currentDialog.addEventHandler(
                 Office.EventType.DialogMessageReceived,
                 function (arg) {
-            
+
                     const msg =
                         JSON.parse(arg.message);
-            
-                    if (msg.action === "CONFIRMED") {
-            
+
+                    console.log(
+                        "dialog message=",
+                        msg
+                    );
+
+                    if (
+                        msg.action ===
+                        "CONFIRMED"
+                    ) {
+
                         Office.context.mailbox.item.sessionData.setAsync(
                             "sendCheckPassed",
                             "true",
                             function(result) {
-            
+
                                 console.log(
                                     "sessionData set",
                                     result.status
                                 );
-            
+
+                                currentDialog.close();
+
                             }
                         );
+
                     }
-            
+
                 }
             );
-    
+
         }
     );
 
