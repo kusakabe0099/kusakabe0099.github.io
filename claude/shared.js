@@ -3,7 +3,7 @@
   "use strict";
 
   // 自社ドメインを設定。これ以外は「社外」として扱う。
-  const INTERNAL_DOMAINS = ["example.co.jp"];
+  const INTERNAL_DOMAINS = ["company.co.jp"];
   const CONFIRMED_KEY = "okanConfirmedSignature";
 
   function call(fn) {
@@ -93,5 +93,5 @@
     return call((cb) => item.sessionData.setAsync(CONFIRMED_KEY, signature, cb));
   }
 
-  global.Okan = { collect, getConfirmed, setConfirmed };
+  global.Okan = { call, collect, domainOf, isExternal, getConfirmed, setConfirmed };
 })(window);
