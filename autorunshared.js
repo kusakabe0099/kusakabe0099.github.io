@@ -11,13 +11,21 @@ function onMessageSendHandler(event) {
 
             if (
                 result.status ===
-                Office.AsyncResultStatus.Succeeded &&
+                    Office.AsyncResultStatus
+                        .Succeeded &&
                 result.value === "true"
             ) {
 
-                event.completed({
-                    allowEvent: true
-                });
+                Office.context.mailbox.item.sessionData.removeAsync(
+                    "sendCheckPassed",
+                    function() {
+
+                        event.completed({
+                            allowEvent: true
+                        });
+
+                    }
+                );
 
                 return;
             }
@@ -25,7 +33,7 @@ function onMessageSendHandler(event) {
             event.completed({
                 allowEvent: false,
                 errorMessage:
-                    "未確認です"
+                    "送信前確認が未完了です"
             });
 
         }
