@@ -17,33 +17,39 @@ function onMessageSendHandler(event) {
                 displayInIframe: true
             },
             function(result) {
-
+        
                 console.log(
                     "displayDialogAsync result",
                     result
                 );
-
+        
                 if (
                     result.status ===
-                    Office.AsyncResultStatus.Succeeded
+                    Office.AsyncResultStatus.Failed
                 ) {
-
-                    event.completed({
-                        allowEvent: false,
-                        errorMessage:
-                            "Dialog OPEN SUCCESS"
-                    });
-
-                } else {
-
-                    event.completed({
-                        allowEvent: false,
-                        errorMessage:
-                            "Dialog OPEN FAILED"
-                    });
-
+        
+                    console.log(
+                        "error",
+                        result.error
+                    );
+        
+                    console.log(
+                        "code",
+                        result.error.code
+                    );
+        
+                    console.log(
+                        "message",
+                        result.error.message
+                    );
+        
                 }
-
+        
+                event.completed({
+                    allowEvent: false,
+                    errorMessage: "検証中"
+                });
+        
             }
         );
 
