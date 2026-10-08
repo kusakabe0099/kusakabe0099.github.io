@@ -1,22 +1,9 @@
-Office.onReady(() => {
-    
-    console.log("Office");
-    
-    console.log(Office.context);
-    
-    console.log(Office.context.mailbox);
-    
-    document
-        .getElementById("sendBtn")
-        .addEventListener("click", () => {
+function sendMail() {
 
-            Office.context.ui.messageParent(
-                JSON.stringify({
-                    action: "SEND"
-                })
-            );
+    Office.context.ui.messageParent(
+        JSON.stringify({
+            action: "CONFIRMED"
+        })
+    );
 
-        });
-
-
-});
+}
