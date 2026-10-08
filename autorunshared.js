@@ -1,32 +1,36 @@
 function onMessageSendHandler(event) {
 
-//    const confirmed =
-//        Office.context.roamingSettings.get(
-//            "sendCheckPassed"
-//        );
+    Office.context.mailbox.item.sessionData.getAsync(
+        "sendCheckPassed",
+        function(result) {
 
-    const confirmed =
-        Office.context.ui.displayDialogAsync(
-            "https://kusakabe0099.github.io/sendcheck.html",
-            { height: 70, width: 60 }
-        );
+            console.log(
+                "sessionData",
+                result
+            );
 
-    console.log("confirmed=", confirmed);
+            if (
+                result.status ===
+                Office.AsyncResultStatus.Succeeded &&
+                result.value === "true"
+            ) {
 
-    if (!confirmed) {
+                event.completed({
+                    allowEvent: true
+                });
 
-        event.completed({
-            allowEvent: false,
-            errorMessage:
-                "送信確認画面を開いて確認してください。"
-        });
+                return;
+            }
 
-        return;
-    }
+            event.completed({
+                allowEvent: false,
+                errorMessage:
+                    "未確認です"
+            });
 
-    event.completed({
-        allowEvent: true
-    });
+        }
+    );
+
 }
 
 Office.onReady(() => {
