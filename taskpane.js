@@ -22,12 +22,29 @@ function openDialog() {
             dialog.addEventHandler(
                 Office.EventType.DialogMessageReceived,
                 function (arg) {
-    
-                    console.log(
-                        "dialog message=",
-                        arg.message
-                    );
-    
+            
+                    const msg =
+                        JSON.parse(arg.message);
+            
+                    if (msg.action === "SEND") {
+            
+                        console.log(
+                            "mailbox",
+                            Office.context.mailbox
+                        );
+            
+                        console.log(
+                            "item",
+                            Office.context.mailbox.item
+                        );
+            
+                        console.log(
+                            "sendAsync",
+                            typeof Office.context.mailbox.item.sendAsync
+                        );
+            
+                    }
+            
                 }
             );
     
