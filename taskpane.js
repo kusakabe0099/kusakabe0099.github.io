@@ -28,19 +28,12 @@ function openDialog() {
             
                     if (msg.action === "SEND") {
             
-                        console.log(
-                            "mailbox",
-                            Office.context.mailbox
-                        );
+                        Office.context.mailbox.item.sendAsync(
+                            function(result) {
             
-                        console.log(
-                            "item",
-                            Office.context.mailbox.item
-                        );
+                                console.log(result);
             
-                        console.log(
-                            "sendAsync",
-                            typeof Office.context.mailbox.item.sendAsync
+                            }
                         );
             
                     }
