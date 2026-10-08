@@ -64,7 +64,7 @@ async function onMessageSendHandler(event) {
 
       // ダイアログを開けなかった場合。原因調査のため、エラーをコンソールとアラートに残す
       console.warn("displayDialogAsync from OnMessageSend failed", r);
-      note = `（ダイアログ表示エラー: ${r.code}）`;
+      note = `（ダイアログ表示エラー: ${r.code}${r.message ? " " + String(r.message).slice(0, 80) : ""}）`;
     }
 
     // フォールバック：「確認画面を開く」ボタン方式
@@ -88,6 +88,31 @@ async function onMessageSendHandler(event) {
 
 /* ---------- 確認ダイアログ ---------- */
 
+// 開き方（オプション）を順に試す。環境によって通る組み合わせが違うため。
+const DIALOG_OPTION_SETS = [
+  { width: 45, height: 85, displayInIframe: true }, // Outlook on the web では画面内のモーダルとして表示
+  { width: 45, height: 85 },
+  { width: 45, height: 85, promptBeforeOpen: false },
+];
+
+// displayDialogAsync を1回呼ぶ。成功なら { dialog }、失敗なら { error: { code, message } }
+function openDialogOnce(url, options) {
+  return new Promise(resolve => {
+    try {
+      Office.context.ui.displayDialogAsync(url, options, result => {
+        if (result.status === Office.AsyncResultStatus.Succeeded) {
+          resolve({ dialog: result.value });
+        } else {
+          resolve({ error: { code: result.error.code, message: result.error.message } });
+        }
+      });
+    } catch (e) {
+      // この実行環境で displayDialogAsync 自体が使えない場合
+      resolve({ error: { code: "exception", message: String(e && e.message) } });
+    }
+  });
+}
+
 // ダイアログを開き、ユーザーの操作が終わるまで待つ。
 // 戻り値: { status: "confirm" | "cancel" | "closed" | "error", code?, message? }
 async function askConfirmation(item, state) {
@@ -106,43 +131,47 @@ async function askConfirmation(item, state) {
   const url = new URL("sendCheck.html", location.href);
   url.hash = encodeURIComponent(JSON.stringify(payload));
 
-  return new Promise(resolve => {
-    try {
-      Office.context.ui.displayDialogAsync(
-        url.toString(),
-        { width: 45, height: 85, displayInIframe: true }, // Outlook on the web では画面内のモーダルとして表示
-        result => {
+  // どの開き方でも失敗した場合に原因を調べられるよう、失敗をすべて記録する
+  const failures = [];
+  let dialog = null;
 
-          if (result.status !== Office.AsyncResultStatus.Succeeded) {
-            resolve({ status: "error", code: result.error.code, message: result.error.message });
-            return;
-          }
-
-          const dialog = result.value;
-
-          dialog.addEventHandler(Office.EventType.DialogMessageReceived, arg => {
-            let msg = {};
-            try { msg = JSON.parse(arg.message); } catch (e) { /* 無視 */ }
-
-            try { dialog.close(); } catch (e) { /* すでに閉じている */ }
-
-            resolve({ status: msg.type === "confirm" ? "confirm" : "cancel" });
-          });
-
-          // ×ボタンなどで閉じられた（12006）、または読み込みに失敗した
-          dialog.addEventHandler(Office.EventType.DialogEventReceived, arg => {
-            resolve(
-              arg.error === 12006
-                ? { status: "closed" }
-                : { status: "error", code: arg.error }
-            );
-          });
-        }
-      );
-    } catch (e) {
-      // この実行環境で displayDialogAsync 自体が使えない場合
-      resolve({ status: "error", code: "exception", message: String(e && e.message) });
+  for (const options of DIALOG_OPTION_SETS) {
+    const r = await openDialogOnce(url.toString(), options);
+    if (r.dialog) {
+      dialog = r.dialog;
+      break;
     }
+    failures.push({ options, ...r.error });
+  }
+
+  if (!dialog) {
+    console.warn("displayDialogAsync failures", failures);
+    return {
+      status: "error",
+      code: failures.map(f => f.code).join("/"),
+      message: failures[0] && failures[0].message,
+    };
+  }
+
+  return new Promise(resolve => {
+
+    dialog.addEventHandler(Office.EventType.DialogMessageReceived, arg => {
+      let msg = {};
+      try { msg = JSON.parse(arg.message); } catch (e) { /* 無視 */ }
+
+      try { dialog.close(); } catch (e) { /* すでに閉じている */ }
+
+      resolve({ status: msg.type === "confirm" ? "confirm" : "cancel" });
+    });
+
+    // ×ボタンなどで閉じられた（12006）、または読み込みに失敗した
+    dialog.addEventHandler(Office.EventType.DialogEventReceived, arg => {
+      resolve(
+        arg.error === 12006
+          ? { status: "closed" }
+          : { status: "error", code: arg.error }
+      );
+    });
   });
 }
 
