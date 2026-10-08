@@ -1,41 +1,21 @@
 function onMessageSendHandler(event) {
 
+    console.log("SEND START");
+
     console.log(
-        "SEND EVENT START"
+        "sessionData",
+        Office.context.mailbox.item.sessionData
     );
 
-    try {
+    console.log(
+        "customProperties",
+        typeof Office.context.mailbox.item.loadCustomPropertiesAsync
+    );
 
-        Office.context.mailbox.item.sessionData.getAsync(
-            "test",
-            function(result) {
-
-                console.log(
-                    "SESSION",
-                    result
-                );
-
-                event.completed({
-                    allowEvent: false,
-                    errorMessage:
-                        "値を確認してください"
-                });
-
-            }
-        );
-
-    } catch(ex) {
-
-        console.error(ex);
-
-        event.completed({
-            allowEvent: false,
-            errorMessage:
-                ex.message
-        });
-
-    }
-
+    event.completed({
+        allowEvent: false,
+        errorMessage: "ログ確認"
+    });
 }
 
 Office.onReady(() => {
