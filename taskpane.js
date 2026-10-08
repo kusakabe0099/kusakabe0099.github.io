@@ -11,23 +11,26 @@ function openDialog() {
     Office.context.ui.displayDialogAsync(
         "https://kusakabe0099.github.io/sendcheck.html",
         {
-            height: 70,
-            width: 60,
+            height: 80,
+            width: 70,
             displayInIframe: true
         },
-        result => {
-
-            console.log(result);
-
-            if (
-                result.status !==
-                Office.AsyncResultStatus.Succeeded
-            ) {
-
-                console.error(result.error);
-
-            }
-
+        function (asyncResult) {
+    
+            const dialog = asyncResult.value;
+    
+            dialog.addEventHandler(
+                Office.EventType.DialogMessageReceived,
+                function (arg) {
+    
+                    console.log(
+                        "dialog message=",
+                        arg.message
+                    );
+    
+                }
+            );
+    
         }
     );
 
