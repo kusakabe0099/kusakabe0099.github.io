@@ -12,7 +12,8 @@ function openDialog() {
         "https://kusakabe0099.github.io/sendcheck.html",
         {
             height: 70,
-            width: 60
+            width: 60,
+            displayInIframe: true
         },
         result => {
 
