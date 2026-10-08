@@ -26,16 +26,20 @@ function openDialog() {
                     const msg =
                         JSON.parse(arg.message);
             
-                    if (msg.action === "SEND") {
+                    if (msg.action === "CONFIRMED") {
             
-                        Office.context.mailbox.item.sendAsync(
+                        Office.context.mailbox.item.sessionData.setAsync(
+                            "sendCheckPassed",
+                            "true",
                             function(result) {
             
-                                console.log(result);
+                                console.log(
+                                    "sessionData set",
+                                    result.status
+                                );
             
                             }
                         );
-            
                     }
             
                 }
