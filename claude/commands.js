@@ -6,6 +6,13 @@ Office.onReady();
 
 const CONFIRM_COMMAND_ID = "msgComposeConfirmButton"; // manifest.xml のボタンIDと一致させる
 
+// ダイアログの開き方（オプション）。環境によって通る組み合わせが違うため、順に試す。
+// 画面内表示（displayInIframe）が拒否された環境（エラー 9032 など）では、通常のウィンドウ表示に切り替わる。
+const DIALOG_OPTION_SETS = [
+  { width: 45, height: 85, displayInIframe: true }, // Outlook on the web では画面内のモーダルとして表示
+  { width: 45, height: 85 },
+];
+
 let dialog = null;
 let shownSignature = null; // ダイアログに表示した内容の署名
 let pendingEvent = null;   // 実行中のコマンドのイベント（ダイアログが終わるまで保持する）
@@ -30,18 +37,21 @@ async function onMessageSendHandler(event) {
       return;
     }
 
+    // ダイアログのアイコンは変更できないため、本文の先頭に警告記号を付けて目立たせる。
+    // Markdown 非対応のクライアント向けに、プレーンテキスト版（errorMessage）も必ず併記する。
+    const summary = `宛先 ${state.recipients.length} 件、うち社外 ${state.externalCount} 件、添付 ${state.files.length} 件`;
+
     event.completed({
       allowEvent: false,
-      errorMessage:
-        "送信前に宛先と添付ファイルの確認が必要です。" +
-        `（宛先 ${state.recipients.length} 件、うち社外 ${state.externalCount} 件、添付 ${state.files.length} 件）`,
+      errorMessage: `⚠ 送信前に宛先と添付ファイルの確認が必要です。（${summary}）`,
+      errorMessageMarkdown: `⚠ **送信前に宛先と添付ファイルの確認が必要です。**\n\n${summary}`,
       cancelLabel: "確認画面を開く", // 「アクションを実行」ボタンのラベル（20文字以内）
       commandId: CONFIRM_COMMAND_ID,
     });
   } catch (e) {
     event.completed({
       allowEvent: false,
-      errorMessage: "送信前チェックでエラーが発生しました。もう一度「送信」を押してください。",
+      errorMessage: "⚠ 送信前チェックでエラーが発生しました。もう一度「送信」を押してください。",
     });
   }
 }
@@ -84,28 +94,58 @@ async function openConfirmDialog(event) {
   const url = new URL("sendCheck.html", location.href);
   url.hash = encodeURIComponent(JSON.stringify(payload));
 
-  Office.context.ui.displayDialogAsync(
-    url.toString(),
-    { width: 45, height: 85, displayInIframe: true }, // Outlook on the web では画面内のモーダルとして表示
-    result => {
+  // どの開き方でも失敗した場合に原因を調べられるよう、失敗をすべて記録する
+  const failures = [];
+  let opened = null;
 
-      if (result.status !== Office.AsyncResultStatus.Succeeded) {
-        const code = result.error.code;
-        notify(
-          code === 12009
-            ? "確認画面の表示が許可されませんでした。「送信前チェック」ボタンから開いてください。"
-            : `確認画面を開けませんでした（エラー ${code}）。`,
-          true
-        );
-        finishCommand();
-        return;
-      }
+  for (const options of DIALOG_OPTION_SETS) {
+    const r = await openDialogOnce(url.toString(), options);
 
-      dialog = result.value;
-      dialog.addEventHandler(Office.EventType.DialogMessageReceived, onDialogMessage);
-      dialog.addEventHandler(Office.EventType.DialogEventReceived, onDialogEvent);
+    if (r.dialog) {
+      opened = r.dialog;
+      break;
     }
-  );
+
+    failures.push(r.error);
+
+    // 許可されなかった場合は、同じ確認を繰り返さない
+    if (r.error.code === 12009) break;
+  }
+
+  if (!opened) {
+    console.warn("displayDialogAsync failures", failures);
+
+    const codes = failures.map(f => f.code);
+    notify(
+      codes.includes(12009)
+        ? "確認画面の表示が許可されませんでした。「送信前チェック」ボタンから開いてください。"
+        : `確認画面を開けませんでした（エラー ${codes.join("/")}）。`,
+      true
+    );
+    finishCommand();
+    return;
+  }
+
+  dialog = opened;
+  dialog.addEventHandler(Office.EventType.DialogMessageReceived, onDialogMessage);
+  dialog.addEventHandler(Office.EventType.DialogEventReceived, onDialogEvent);
+}
+
+// displayDialogAsync を1回呼ぶ。成功なら { dialog }、失敗なら { error: { code, message } }
+function openDialogOnce(url, options) {
+  return new Promise(resolve => {
+    try {
+      Office.context.ui.displayDialogAsync(url, options, result => {
+        if (result.status === Office.AsyncResultStatus.Succeeded) {
+          resolve({ dialog: result.value });
+        } else {
+          resolve({ error: { code: result.error.code, message: result.error.message } });
+        }
+      });
+    } catch (e) {
+      resolve({ error: { code: "exception", message: String(e && e.message) } });
+    }
+  });
 }
 
 // ダイアログが×ボタンなどで閉じられた、または読み込みに失敗した
