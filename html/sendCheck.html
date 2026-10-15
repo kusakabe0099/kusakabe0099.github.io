@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>送信前チェック</title>
+  <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script type="text/javascript" src="../js/shared.js"></script>
+  <script type="text/javascript" src="../js/sendCheck.js"></script>
+  <link rel="stylesheet" href="../css/sendCheck.css">
+</head>
+
+<body>
+
+<div class="container">
+
+  <header class="brand">
+    <!-- ダークモードのときは logo-dark.png、それ以外は logo-light.png を読み込む。
+         alt="" は装飾扱い（隣の見出しで内容が伝わるため）。社名入りのロゴなら、会社名を入れてください -->
+    <picture>
+      <source srcset="../img/logo-dark.png" media="(prefers-color-scheme: dark)">
+      <img class="logo" src="../img/logo-light.png" alt="" height="32">
+    </picture>
+    <h1>誤送信防止</h1>
+  </header>
+
+  <div class="subject-card">
+    <span class="label">件名</span>
+    <span id="subjectText"></span>
+  </div>
+
+  <h3>TO</h3>
+  <div id="toList"></div>
+
+  <h3>CC</h3>
+  <div id="ccList"></div>
+
+  <h3>BCC</h3>
+  <div id="bccList"></div>
+
+  <h3>添付ファイル</h3>
+  <div id="attachList"></div>
+
+  <div class="footer">
+
+    <span id="progress">
+      確認済み: 0/0
+    </span>
+
+    <div class="buttons">
+      <button id="cancelButton" type="button" class="secondary">
+        キャンセル
+      </button>
+      <button id="sendButton" type="button" disabled>
+        確認して送信
+      </button>
+    </div>
+
+    <div id="message" role="status"></div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
