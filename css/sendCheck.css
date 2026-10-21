@@ -27,15 +27,17 @@
     --error: #d92d20;
 }
 
-/* ウィンドウいっぱいに背景色を敷く（body の高さが足りない部分や、スクロール端の色が抜けないように） */
+/* ウィンドウいっぱいに背景色を敷く。ページ全体はスクロールさせず、
+   スクロールするのは .content の中だけ（フッターはスクロールの範囲に含めない） */
 html {
     background: var(--bg);
-    min-height: 100%;
+    height: 100%;
 }
 
 body {
     margin: 0;
-    min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
     font-family: "Yu Gothic UI", "Meiryo UI", system-ui, sans-serif;
     font-size: 15px;
     line-height: 1.6;
@@ -43,12 +45,18 @@ body {
     background: var(--bg);
 }
 
-/* 内容が少ないときもフッターを下端に固定するため、縦のflexにする */
+/* 縦に「スクロールする本体」＋「固定のフッター」を並べる */
 .container {
     box-sizing: border-box;
-    min-height: 100vh;
+    height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.content {
+    flex: 1 1 auto;
+    min-height: 0;      /* これがないと、内容が長いときに flex が縮まず、スクロールにならない */
+    overflow-y: auto;
     padding: 16px 20px 0;
 }
 
@@ -119,12 +127,10 @@ input[type="checkbox"] {
     accent-color: var(--accent);
 }
 
-/* フッター：スクロールしても画面の下端に固定 */
+/* フッター：スクロールの範囲に含めず、常に下端に表示 */
 .footer {
-    position: sticky;
-    bottom: 0;
-    margin-top: auto;
-    padding: 14px 16px 16px;
+    flex: none;
+    padding: 14px 20px 16px;
     background: var(--card-bg);
     border-top: 1px solid var(--card-border);
 }
