@@ -1,0 +1,153 @@
+/* ライト固定。OS／ブラウザがダークモードでも、この画面は常にライト配色で表示する。
+   （ダイアログの外枠は Outlook が描画していて、ダーク時も白のままのため、見た目をそろえている） */
+:root {
+    color-scheme: light; /* チェックボックスなどの標準部品もライトに固定 */
+
+    --bg: #f6f7fb;
+    --fg: #1f2a37;
+    --muted: #6b7280;
+
+    --card-bg: #ffffff;
+    --card-border: #dbe3f0;
+    --card-head-bg: #edf3ff;
+
+    --external-fg: #d12a1d;
+    --external-bg: #fff0f0;
+
+    --accent: #2563eb;
+    --btn-bg: #2563eb;
+    --btn-fg: #ffffff;
+    --btn-secondary-bg: #e5e7eb;
+    --btn-secondary-fg: #374151;
+    --btn-disabled-bg: #d5dcec;
+    --btn-disabled-fg: #8b95a7;
+
+    --focus: #2563eb;
+    --ok: #0f766e;
+    --error: #d92d20;
+}
+
+/* ウィンドウいっぱいに背景色を敷く（body の高さが足りない部分や、スクロール端の色が抜けないように） */
+html {
+    background: var(--bg);
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Yu Gothic UI", "Meiryo UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--fg);
+    background: var(--bg);
+}
+
+/* 内容が少ないときもフッターを下端に固定するため、縦のflexにする */
+.container {
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 0;
+}
+
+h1 { font-size: 18px; margin: 0 0 12px; }
+
+/* ロゴ＋見出し */
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.brand h1 { margin: 0; }
+.logo { display: block; height: 32px; width: auto; max-width: 160px; object-fit: contain; }
+
+/* カード（件名・TO・CC・BCC・添付ファイル共通） */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden; /* 見出し帯の角を丸める */
+}
+
+.card-head {
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: bold;
+    background: var(--card-head-bg);
+}
+
+.card-body { padding: 12px 14px; }
+
+/* 件名 */
+.subject-card { padding: 14px 16px; }
+.subject-card .label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+}
+#subjectText {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+/* 宛先・添付の1行 */
+.recipient-row { padding: 10px 14px; }
+.recipient-row label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow-wrap: anywhere;
+}
+
+.empty-row { padding: 10px 14px; color: var(--muted); }
+
+/* 社外の宛先を赤で強調 */
+.external {
+    color: var(--external-fg);
+    font-weight: bold;
+    background: var(--external-bg);
+    border-left: 4px solid var(--external-fg);
+}
+
+label { cursor: pointer; }
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    accent-color: var(--accent);
+}
+
+/* フッター：スクロールしても画面の下端に固定 */
+.footer {
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: 14px 16px 16px;
+    background: var(--card-bg);
+    border-top: 1px solid var(--card-border);
+}
+
+#progress { display: block; font-weight: bold; margin-bottom: 10px; }
+
+.buttons { display: flex; gap: 10px; }
+.buttons button { flex: 1; }
+
+button {
+    padding: 13px 12px;
+    font: inherit;
+    font-weight: bold;
+    color: var(--btn-fg);
+    background: var(--btn-bg);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+}
+button.secondary { color: var(--btn-secondary-fg); background: var(--btn-secondary-bg); }
+button:disabled { color: var(--btn-disabled-fg); background: var(--btn-disabled-bg); cursor: not-allowed; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+#message { margin-top: 10px; min-height: 1.6em; }
+#message.ok { color: var(--ok); font-weight: bold; }
+#message.error { color: var(--error); }
