@@ -62,10 +62,12 @@ body {
 
 h1 { font-size: 18px; margin: 0 0 12px; }
 
-/* ロゴ＋見出し */
-.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+/* 見出し */
+.brand { margin-bottom: 12px; }
 .brand h1 { margin: 0; }
-.logo { display: block; height: 32px; width: auto; max-width: 160px; object-fit: contain; }
+
+/* ロゴ（フッターのボタンの下。左端をキャンセルボタンにそろえる） */
+.logo { display: block; height: 28px; width: auto; max-width: 160px; object-fit: contain; margin-top: 12px; }
 
 /* カード（件名・TO・CC・BCC・添付ファイル共通） */
 .card {
@@ -154,6 +156,7 @@ button.secondary { color: var(--btn-secondary-fg); background: var(--btn-seconda
 button:disabled { color: var(--btn-disabled-fg); background: var(--btn-disabled-bg); cursor: not-allowed; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-#message { margin-top: 10px; min-height: 1.6em; }
+#message { margin-top: 10px; }
+#message:empty { display: none; }
 #message.ok { color: var(--ok); font-weight: bold; }
 #message.error { color: var(--error); }
