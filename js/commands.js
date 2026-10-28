@@ -141,7 +141,7 @@ async function showDialog(heightPercent, checked, attempt) {
     const codes = failures.map(f => f.code);
     notify(
       codes.includes(12009)
-        ? "確認画面の表示が許可されませんでした。「送信前チェック」ボタンから開いてください。"
+        ? "確認画面の表示が許可されませんでした。「メッセージ」リボン→「アプリ」→「誤送信対策アドイン」から開いてください。"
         : `確認画面を開けませんでした（エラー ${codes.join("/")}）。`,
       true
     );
@@ -179,7 +179,7 @@ function onDialogEvent(arg) {
 
   notify(
     arg.error === 12006
-      ? "確認画面が閉じられました。送信するには再度送信ボタンを押してください。"
+      ? "確認画面が閉じられました。送信するには再度「送信」を押してください。"
       : `確認画面でエラーが発生しました（エラー ${arg.error}）。`,
     true
   );
@@ -212,7 +212,7 @@ async function onDialogMessage(arg) {
   if (msg.type === "confirm") {
     await saveAndSend();
   } else {
-    notify("キャンセルしました。送信するには「送信前チェック」ボタンを押してください。", false);
+    notify("キャンセルしました。送信するには再度「送信」を押してください。", false);
   }
 
   finishCommand();
